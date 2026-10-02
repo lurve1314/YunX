@@ -3,7 +3,6 @@ name: Android CI
 on:
   push:
     branches: [ "master" ]
-    # paths 过滤：仅当构建相关文件变化时才触发，避免空跑 CI（workflow 自身必须在列表内，否则改它不触发）
     paths:
       - '.github/workflows/ci.yml'
       - 'app/**'
@@ -19,7 +18,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    # CI访问阿里云镜像会 502：跳过国内镜像，直接走 Google/Maven Central 官方源
+
     env:
       YUNX_USE_MIRROR: "false"
 
@@ -46,15 +45,15 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-      - name: Build debug
-        run: ./gradlew assembleDebug  --no-daemon
+      - name: Build release APK
+        run: ./gradlew assembleRelease --no-daemon
 
       - name: Run unit tests
-        run: ./gradlew testDebugUnitTest --no-daemon
+        run: ./gradlew testReleaseUnitTest --no-daemon
 
-      - name: Upload debug APK
+      - name: Upload release APK
         uses: actions/upload-artifact@v4
         with:
-          name: app-debug
-          path: app/build/outputs/apk/debug/app-debug.apk
+          name: app-release
+          path: app/build/outputs/apk/release/app-release.apk
           if-no-files-found: error
